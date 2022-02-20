@@ -1,5 +1,7 @@
 venv/
 geckodriver.log
 log/
+data/*
+!data/input.txt
 .vscode/
 .vscode/settings.json
