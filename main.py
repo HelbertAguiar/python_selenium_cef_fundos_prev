@@ -55,25 +55,34 @@ class ScraperPrev():
         self.salva_dados_csv(somenteCabecalho=True)
 
         for data in self.lista_datas:
-            data_string = str(data).replace('[', '')\
-                                   .replace(']', '').replace('\'', '')
-            self.insere_data(driver, data_string)
-            sleep(self.sleep)
-            soup = BeautifulSoup(driver.page_source, 'html.parser')
-            table = soup.find_all('table', {'class':
-                                            'tabela-fundo-investimento'})[0]
-            table = table.tbody
-            self.get_data(table, data_string)
+            if data != '\n':
+                self.insere_data(driver, data)
+                sleep(self.sleep)
+                soup = BeautifulSoup(driver.page_source, 'html.parser')
+                table = soup.find_all(
+                            'table', {'class': 'tabela-fundo-investimento'}
+                        )[0]
+                table = table.tbody
+                self.captura_dados(table)
+                driver.refresh()
 
     def insere_data(self, driver, dataInserir):
-        sleep(self.sleep)
-        input = driver.find_element_by_id(
-            'formTabelaFundo.dataConsulta.input')
-        input.clear()
-        input.send_keys(dataInserir.replace('/', ''))
+        try:
+            driver.execute_script("window.scrollTo(0, 1000)")
+            sleep(.1)
+            input = driver.find_element(By.ID,
+                                        'formTabelaFundo.dataConsulta.input')
+            dataInserir = str(dataInserir).replace('[', '')\
+                                          .replace(']', '')\
+                                          .replace('\'', '')\
+                                          .replace('/', '')
+            input.send_keys(dataInserir)
+            sleep(self.sleep)
+        except Exception as e:
+            logging.critical(f'Falha: {e}')
+            sys.exit("Falha critica, consulte o log")
 
-    def get_data(self, table, data):
-
+    def captura_dados(self, table):
         tags_tr = table.findChildren("tr", recursive=False)
         classe = ''
 
