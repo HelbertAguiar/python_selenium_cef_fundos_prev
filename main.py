@@ -124,6 +124,7 @@ class ScraperPrev():
                 file.write('dataCota;nomeFundo;dtInicio;taxaAdm;cota;classe\n')
 
     def inicia_navegador(self):
+        svc = Service(executable_path='./driver/geckodriver.exe', log_path='')
         try:
             svc = Service(executable_path='./driver/geckodriver.exe',
                           log_path='')
