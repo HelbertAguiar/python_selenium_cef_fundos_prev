@@ -1,15 +1,17 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
 import logging
-import sys
 from time import sleep
-import os
+from datetime import datetime
+import sys
 
 
 class ScraperPrev():
 
-    def __init__(self, url: str, sleep: int = 5):
-        self.configura_log()
+    def __init__(self, url: str, sleep: int = 5, nivel_log=logging.INFO):
+        self.now = datetime.now()
+        self.date_current_str = self.now.strftime("%d-%m-%Y_%Hh%Mmin%Sseg")
+        self.configura_log(self.date_current_str, nivel_log)
         self.lista_datas = self.busca_data()
         self.url = url
         self.sleep = sleep
