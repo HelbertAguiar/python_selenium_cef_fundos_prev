@@ -1,6 +1,6 @@
 venv/
 geckodriver.log
-log/
+log/*
 data/*
 !data/input.txt
 .vscode/
