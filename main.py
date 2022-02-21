@@ -1,4 +1,7 @@
 from selenium import webdriver
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 import logging
 from time import sleep
@@ -20,21 +23,23 @@ class ScraperPrev():
         self.encerra_navegador()
 
     @staticmethod
-    def configura_log():
+    def configura_log(date_current_str: str, nivel_log):
         logging.basicConfig(
-            filename='./log/log.txt',
+            filename=f'./log/log_execution_{date_current_str}.txt',
             filemode='w',
-            level=logging.INFO,
-            format=('%(asctime)s.%(msecs)03d'
-                    '%(levelname)8s %(module)s: %(message)s'),
+            level=nivel_log,
+            format=('%(asctime)s.%(msecs)02d | '
+                    '%(levelname)8s (%(module)s => %(funcName)s) | '
+                    '%(message)s'),
             datefmt='%Y-%m-%d %H:%M:%S'
         )
 
     def busca_data(self):
         lista_datas = []
-        with open('./data/input.txt', 'r') as reader:
-            for line in reader.readlines():
-                lista_datas.append(line.split())
+        try:
+            with open('./data/input.txt', 'r') as reader:
+                for line in reader.readlines():
+                    lista_datas.append(line.split())
 
         logging.info('Concluido busca das datas para pesquisa')
         return lista_datas
@@ -77,35 +82,52 @@ class ScraperPrev():
                 classe = tr.text
             else:
                 nome_fundo = tr.findAll('td')[0].text
+                dt_inicio_fundo = tr.findAll('td')[1].text
                 taxa_adm = tr.findAll('td')[2].text
-                # data_cota = tr.findAll('td')[3].text
+                data_cota = tr.findAll('td')[3].text
                 cota = tr.findAll('td')[4].text
-                self.save_to_file(data, nome_fundo,
-                                  taxa_adm, cota, classe)
-        logging.info(f'Consulta com sucesso referente a:{data}')
+                self.salva_dados_csv(data_cota, nome_fundo, dt_inicio_fundo,
+                                     taxa_adm, cota, classe)
+        logging.info(f'Consulta com sucesso referente a:{data_cota}')
 
-    def save_to_file(self, data_cota, nome_fundo, taxa_adm, cota, classe):
-        with open('data/output.txt', 'a', encoding='utf-8') as file:
-            file.write(f'{data_cota};{nome_fundo};{taxa_adm};{cota};{classe}')
-            file.write("\n")
+    def salva_dados_csv(self, data=None, nome_fundo=None,
+                        dt_inicio_fundo=None, taxa_adm=None,
+                        cota=None, classe=None, somenteCabecalho=False):
+        if somenteCabecalho is False:
+            with open(f'./data/output_{self.date_current_str}.csv',
+                      'a', encoding='utf-8') as file:
+                file.write(f'{data};{nome_fundo};{dt_inicio_fundo};' +
+                           f'{taxa_adm};{cota};{classe}')
+                file.write("\n")
+        else:
+            with open(f'./data/output_{self.date_current_str}.csv',
+                      'a', encoding='utf-8') as file:
+                # include char BOM / Excell entende que é UTF8 ao abrir
+                file.write('\ufeff')
+
+                file.write('dataCota;nomeFundo;dtInicio;taxaAdm;cota;classe\n')
 
     def inicia_navegador(self):
         try:
-            self.driver = webdriver.Firefox(
-                            executable_path='./driver/geckodriver.exe',
-                            service_log_path=os.devnull)
+            svc = Service(executable_path='./driver/geckodriver.exe', log_path='')
+            self.driver = webdriver.Firefox(service=svc)
             logging.info('Navegador aberto com sucesso')
-        except:
-            logging.critical('Falha na carga do driver do navegador')
-            sys.exit('Falha no carregamento do driver ou localizacao '
-                     'do path firefox')
+        except WebDriverException as e:
+            logging.critical(f'Falha: {e}')
+            sys.exit("Falha critica, consulte o log")
 
     def encerra_navegador(self):
-        self.driver.close()
-        logging.info('Navegador encerrado com sucesso')
+        try:
+            self.driver.close()
+            logging.info('Navegador encerrado com sucesso')
+        except Exception as e:
+            logging.critical(f'Falha: {e}')
+            sys.exit("Falha critica, consulte o log")
 
 
 URL = ('https://www.caixavidaeprevidencia.com.br/'
        'previdencia/rendimento-dos-fundos')
-SLEEP = 12
-scraper = ScraperPrev(URL, SLEEP)
+SLEEP = 6
+NIVEL_LOG = logging.INFO
+
+scraper = ScraperPrev(URL, SLEEP, NIVEL_LOG)
