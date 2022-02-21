@@ -52,10 +52,7 @@ class ScraperPrev():
         driver.get(self.url)
         sleep(self.sleep)
         assert 'Caixa Vida e Previdência' in driver.title
-
-        with open('data/output.txt', 'a', encoding='utf-8') as file:
-            file.write('DATA;NOME FUNDO;TAXA ADM;COTA;CLASSE')
-            file.write("\n")
+        self.salva_dados_csv(somenteCabecalho=True)
 
         for data in self.lista_datas:
             data_string = str(data).replace('[', '')\
