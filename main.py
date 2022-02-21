@@ -41,8 +41,11 @@ class ScraperPrev():
                 for line in reader.readlines():
                     lista_datas.append(line.split())
 
-        logging.info('Concluido busca das datas para pesquisa')
-        return lista_datas
+            logging.info('Concluido busca das datas para pesquisa')
+            return lista_datas
+        except FileNotFoundError as e:
+            logging.critical(f'Falha: {e}')
+            sys.exit("Falha critica, consulte o log na pasta de mesmo nome")
 
     def inicia_scraping(self):
         driver = self.driver
