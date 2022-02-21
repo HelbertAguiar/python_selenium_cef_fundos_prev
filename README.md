@@ -24,6 +24,13 @@ O log de execução ficará salvo na pasta \
 ## 🔗 Link do Scraping
 
 <https://www.caixavidaeprevidencia.com.br/previdencia/rendimento-dos-fundos>
+<br/>
+
 <https://python.hotexamples.com/pt/examples/selenium.webdriver.support.wait/WebDriverWait/-/python-webdriverwait-class-examples.html>
+<br/>
+
 <https://www.selenium.dev/documentation/webdriver/waits/>
+<br/>
+
 <http://pythonclub.com.br/selenium-parte-1.html>
+<br/>
