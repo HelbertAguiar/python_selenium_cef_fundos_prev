@@ -1,5 +1,7 @@
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
@@ -50,21 +52,26 @@ class ScraperPrev():
     def inicia_scraping(self):
         driver = self.driver
         driver.get(self.url)
-        sleep(self.sleep)
+        WebDriverWait(driver, timeout=self.sleep).until(
+            ec.title_is('Caixa Vida e Previdência')
+        )
         assert 'Caixa Vida e Previdência' in driver.title
         self.salva_dados_csv(somenteCabecalho=True)
 
         for data in self.lista_datas:
-            if data != '\n':
-                self.insere_data(driver, data)
-                sleep(self.sleep)
-                soup = BeautifulSoup(driver.page_source, 'html.parser')
-                table = soup.find_all(
-                            'table', {'class': 'tabela-fundo-investimento'}
-                        )[0]
-                table = table.tbody
-                self.captura_dados(table)
-                driver.refresh()
+            try:
+                if data != '\n':
+                    self.insere_data(driver, data)
+                    soup = BeautifulSoup(driver.page_source, 'html.parser')
+                    table = soup.find_all(
+                                'table', {'class': 'tabela-fundo-investimento'}
+                            )[0]
+                    table = table.tbody
+                    self.captura_dados(table)
+                    driver.refresh()
+            except Exception as e:
+                logging.critical(f'Falha: {e}')
+                sys.exit("Falha critica, consulte o log")
 
     def insere_data(self, driver, dataInserir):
         try:
@@ -118,7 +125,8 @@ class ScraperPrev():
 
     def inicia_navegador(self):
         try:
-            svc = Service(executable_path='./driver/geckodriver.exe', log_path='')
+            svc = Service(executable_path='./driver/geckodriver.exe',
+                          log_path='')
             self.driver = webdriver.Firefox(service=svc)
             logging.info('Navegador aberto com sucesso')
         except WebDriverException as e:
