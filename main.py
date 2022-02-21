@@ -39,7 +39,7 @@ class ScraperPrev():
         try:
             with open('./data/input.txt', 'r') as reader:
                 for line in reader.readlines():
-                    lista_datas.append(line.split())
+                    lista_datas.append(line.rstrip("\n"))
 
             logging.info('Concluido busca das datas para pesquisa')
             return lista_datas
@@ -136,7 +136,7 @@ class ScraperPrev():
 
 URL = ('https://www.caixavidaeprevidencia.com.br/'
        'previdencia/rendimento-dos-fundos')
-SLEEP = 6
+SLEEP = 10
 NIVEL_LOG = logging.INFO
 
 scraper = ScraperPrev(URL, SLEEP, NIVEL_LOG)
