@@ -34,3 +34,6 @@ O log de execução ficará salvo na pasta \
 
 <http://pythonclub.com.br/selenium-parte-1.html>
 <br/>
+
+<https://www.youtube.com/watch?v=PHHXksljGNA&list=PLOQgLBuj2-3LqnMYKZZgzeC7CKCPF375B>
+<br/>
